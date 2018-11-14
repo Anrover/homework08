@@ -16,12 +16,14 @@ trait PeopleModule {
     Person(name, bd)
   }
 
-  def setup(uri: String): Unit = {
-    DBRes.update("DROP TABLE people", List.empty).execute(uri)
-    DBRes.update("CREATE TABLE people(name VARCHAR(256), birthday DATE)", List.empty).execute(uri)
+  def setup(): DBRes[Unit] = {
+    for {
+      _ <- DBRes.update("DROP TABLE IF EXISTS people", List.empty)
+      _ <- DBRes.update("CREATE TABLE people(name VARCHAR(256), birthday DATE)", List.empty)
 
-    storePerson(Person("Alice", LocalDate.of(1970, 1, 1))).execute(uri)
-    storePerson(Person("Bob", LocalDate.of(1981, 5, 12))).execute(uri)
-    storePerson(Person("Charlie", LocalDate.of(1979, 2, 20))).execute(uri)
+      _ <- storePerson (Person("Alice", LocalDate.of(1970, 1, 1)))
+      _ <- storePerson (Person("Bob", LocalDate.of(1981, 5, 12)))
+      _ <- storePerson (Person("Charlie", LocalDate.of(1979, 2, 20)))
+    } yield ()
   }
 }
